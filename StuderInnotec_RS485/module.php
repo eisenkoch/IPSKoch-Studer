@@ -30,7 +30,7 @@ public function Create() {
 	
 	//register Attribute
 	$this->RegisterAttributeInteger('ArchiveControlID', IPS_GetInstanceListByModuleID(ARCHIVE_CONTROL_MODULE_ID)[0]);
-	$this->RegisterAttributeString('stips_url', 'https://service.st-ips.de/studer-version.json');
+	$this->RegisterAttributeString('stips_url', 'https://studer-aws.s3.us-east-1.amazonaws.com/studer-version.json');
 	$this->RegisterAttributeInteger("count_XT", 0);
 	$this->RegisterAttributeInteger("count_VS", 0);
 	$this->RegisterAttributeInteger("count_VT", 0);
