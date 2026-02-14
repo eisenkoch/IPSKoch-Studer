@@ -30,7 +30,7 @@ public function Create() {
 	
 	//register Attribute
 	$this->RegisterAttributeInteger('ArchiveControlID', IPS_GetInstanceListByModuleID(ARCHIVE_CONTROL_MODULE_ID)[0]);
-	$this->RegisterAttributeString('stips_url', 'https://studer-aws.s3.us-east-1.amazonaws.com/studer-version.json');
+	$this->RegisterAttributeString('stips_url', 'https://service.st-ips.de/studer-version.json');
 	$this->RegisterAttributeInteger("count_XT", 0);
 	$this->RegisterAttributeInteger("count_VS", 0);
 	$this->RegisterAttributeInteger("count_VT", 0);
@@ -362,6 +362,7 @@ public function setDateTime(){
 	$actualFW485 = $this->ReadPropertyInteger("FW_Xcom-485i");
 	if ($actualFW485 < '1.6.86') {
 		echo $actualFW485;
+		echo "not implemented";
 	}
 }
 
@@ -424,10 +425,10 @@ public function CheckSofwareVersion() {
 					$vs_type = (float) PhpType::bytes2float($modbus->readMultipleInputRegisters(40, 148, 2),1);
 					switch ($vs_type){
 						case "13057":
-							$DeviceType = "VARIOSTRING VS-70";		
+							$DeviceType = "VARIOSTRING";		
 							break;
 						case "12801";
-							$DeviceType = "VARIOSTRING VS-120";		
+							$DeviceType = "VARIOSTRING";		
 							break;
 						default :
 							exit;
@@ -458,7 +459,6 @@ public function CheckSofwareVersion() {
 			if ($studer_version == NULL){
 				exit;
 			}
-			
 			if (($studer_version['versions'][$DeviceType])==(($msb >>8) . "." . ($lsb >>8) . "." . ($lsb & 0xFF))){
 				if (!$func_call ==1){
 					echo "found a active ". $DeviceType ." and no update needed \n\n";
@@ -494,11 +494,15 @@ private function RegisterProfileFloat($Name, $Icon, $Prefix, $Suffix, $MinValue,
 }
 function GetDataStuderVersion() {
     $curl = curl_init();
-
-	curl_setopt($curl, CURLOPT_URL, $this->ReadAttributeString("stips_url"));
+	//temporay fix to get the Softwareversion even from a non https page; will be removed later
+	$url = $this->ReadAttributeString("stips_url");			
+	$url = str_replace( 'https://', 'http://', $url );
+	//*
+	curl_setopt($curl, CURLOPT_URL,$url);
 	curl_setopt($curl, CURLOPT_HEADER, 0);
 	curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+	curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
 	
 	curl_exec($curl);
 	
@@ -513,7 +517,6 @@ function GetDataStuderVersion() {
 	}
 	
 	curl_close($curl);
-	
 	return ($response); 
 }
 }
